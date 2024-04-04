@@ -30,7 +30,7 @@ lerna-debug.log*
 
 # IDE - VSCode
 .history
-.env
+# .env
 .vscode/*
 !.vscode/settings.json
 !.vscode/tasks.json
