@@ -6,6 +6,7 @@ import { IWeatherReceiverRepository } from '../ports/IWeatherReceiverRepository'
 import { WeatherReceiver } from 'src/domain/models/WeatherReceiverModel';
 import { EntityNotFoundException } from 'src/domain/exceptions/EntityNotFoundException';
 import { WeatherUseCases } from './WeatherUseCase';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class WeatherReceiverUseCases {
@@ -16,6 +17,7 @@ export class WeatherReceiverUseCases {
     private jwtService: JwtService,
     private weatherReceiverRepository: IWeatherReceiverRepository,
     private weatherService: WeatherUseCases,
+    private configService: ConfigService,
   ) {}
 
   async registerReceiveWeather(
@@ -52,7 +54,7 @@ export class WeatherReceiverUseCases {
     await this.mailService.sendMail(
       registerReceiveWeather.email,
       'Weather Registration',
-      `http://localhost:3000/confirm?token=${token}`,
+      `${this.configService.get<string>('URL_BE')}/receiver/confirm?token=${token}`,
     );
     return token;
   }
