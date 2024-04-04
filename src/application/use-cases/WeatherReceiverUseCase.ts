@@ -54,7 +54,7 @@ export class WeatherReceiverUseCases {
     await this.mailService.sendMail(
       registerReceiveWeather.email,
       'Weather Registration',
-      `${this.configService.get<string>('URL_BE')}/receiver/confirm?token=${token}`,
+      `${this.configService.get<string>('URL_BE')}receiver/confirm?token=${token}`,
     );
     return token;
   }
