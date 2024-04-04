@@ -37,5 +37,7 @@ services:
 
 volumes:
   pgdb:
+
+
 networks:
-  - weather-network
+  weather-network:
