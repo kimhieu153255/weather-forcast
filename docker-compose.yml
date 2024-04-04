@@ -33,3 +33,7 @@ services:
 
 volumes:
   pgdb:
+networks:
+  default:
+    external:
+      name: weather-network
