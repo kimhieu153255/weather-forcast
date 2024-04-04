@@ -41,7 +41,6 @@ export class WeatherReceiverUseCases {
       { email: registerReceiveWeather.email },
       { secret: 'secret' },
     );
-    console.log(token);
     const receiverEntity = new WeatherReceiver(
       registerReceiveWeather.email,
       registerReceiveWeather.city,
@@ -68,8 +67,6 @@ export class WeatherReceiverUseCases {
   async verifyPayload(token: string): Promise<WeatherReceiver> {
     const payload = await this.jwtService.verify(token, { secret: 'secret' });
 
-    console.log(payload);
-
     const receiver = await this.weatherReceiverRepository.findOne({
       where: { email: payload.email },
     });
@@ -88,7 +85,6 @@ export class WeatherReceiverUseCases {
   async confirmReceiver(token: string): Promise<void> {
     const payload = await this.verifyPayload(token);
 
-    console.log(payload);
     if (!payload) {
       throw new EntityNotFoundException('Receiver Not found');
     }
