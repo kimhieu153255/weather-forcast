@@ -1,0 +1,56 @@
+services:
+  - type: pserv
+    runtime: docker
+    name: db
+    image: postgres:16-alpine
+    restart: always
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: secret
+      POSTGRES_DB: weatherdb
+    ports:
+      - '5432:5432'
+    volumes:
+      - pgdb:/var/lib/postgresql/data
+    expose:
+      - '5432'
+    disk:
+      name: pgdata
+      mountPath: /var/lib/postgresql/data
+
+  - type: web
+    runtime: docker
+    name: app
+    buildCommand: npm install && npm run build
+    startCommand: npm run start:prod
+    repo: .
+    envVars:
+      - key: API_BASE_URL
+        value: https://api.example.com
+      - key: APP_SECRET
+        generateValue: true
+      - key: STRIPE_API_KEY
+        sync: false
+      - key: DATABASE_URL
+        fromService:
+          name: db
+          type: pserv
+          property: connectionString
+    ports:
+      - '3000:3000'
+    dependsOn:
+      - db
+    volumes:
+      - ./src:/app/src
+
+volumes:
+  pgdb:
+
+databases:
+  - name: mydatabase
+    databaseName: weatherdb
+    user: root
+    ipAllowList:
+      -
+
+
