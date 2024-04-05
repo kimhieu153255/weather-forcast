@@ -1,5 +1,5 @@
 import { ForbiddenException, Injectable, Logger } from '@nestjs/common';
-import { registerReceiveWeatherDTO } from '../dtos/RegisterReceiveWaetherDTO';
+import { RegisterReceiveWeatherDTO } from '../dtos/RegisterReceiveWaetherDTO';
 import { IMailService } from '../ports/IMailService';
 import { JwtService, JwtSignOptions } from '@nestjs/jwt';
 import { IWeatherReceiverRepository } from '../ports/IWeatherReceiverRepository';
@@ -21,24 +21,15 @@ export class WeatherReceiverUseCases {
   ) {}
 
   async registerReceiveWeather(
-    registerReceiveWeather: registerReceiveWeatherDTO,
+    registerReceiveWeather: RegisterReceiveWeatherDTO,
   ): Promise<string> {
     this.logger.log(`Registering to receive weather`);
 
-    const receiver = await this.weatherReceiverRepository.findOne({
-      where: { email: registerReceiveWeather.email },
-    });
-
-    if (receiver && receiver.isConfirmed) {
-      throw new ForbiddenException('User already registered');
-    }
-
-    if (receiver && !receiver.isConfirmed) {
-      await this.weatherReceiverRepository.delete(receiver.id);
-    }
-
     const token = this.signToken(
-      { email: registerReceiveWeather.email },
+      {
+        email: registerReceiveWeather.email,
+        city: registerReceiveWeather.city,
+      },
       { secret: 'secret' },
     );
     const receiverEntity = new WeatherReceiver(
@@ -53,7 +44,7 @@ export class WeatherReceiverUseCases {
     await this.mailService.sendMail(
       registerReceiveWeather.email,
       'Weather Registration',
-      `${this.configService.get<string>('URL_BE')}receiver/confirm?token=${token}`,
+      ` Click here to confirm your registration:\n${this.configService.get<string>('URL_BE')}receiver/confirm?token=${token}`,
     );
     return token;
   }
@@ -68,7 +59,7 @@ export class WeatherReceiverUseCases {
     const payload = await this.jwtService.verify(token, { secret: 'secret' });
 
     const receiver = await this.weatherReceiverRepository.findOne({
-      where: { email: payload.email },
+      where: { email: payload.email, city: payload.city },
     });
 
     if (!receiver) {
@@ -90,7 +81,7 @@ export class WeatherReceiverUseCases {
     }
 
     const receiver = await this.weatherReceiverRepository.findOne({
-      where: { email: payload.email },
+      where: { email: payload.email, city: payload.city },
     });
 
     if (!receiver) {

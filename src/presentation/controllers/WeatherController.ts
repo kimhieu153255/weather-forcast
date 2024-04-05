@@ -41,6 +41,16 @@ export class WeatherController {
   }
 
   @Get('history')
+  @ApiOperation({ summary: 'Get weather history' })
+  @ApiOkResponse({
+    description: 'The weather history',
+    type: WeatherVM,
+    isArray: true,
+  })
+  @ApiBadRequestResponse({
+    description: 'Invalid request object',
+    type: BadRequestError,
+  })
   async getHistory() {
     const weathers = await this.weatherSevice.getWeatherHistory();
 
@@ -69,6 +79,25 @@ export class WeatherController {
     return new SuccessResponseDTO({
       message: 'Weather found',
       metadata: weathers.map((weather) => WeatherVM.toViewModel(weather)),
+    });
+  }
+
+  @Get('save-current-weather')
+  @ApiOperation({ summary: 'Save current weather' })
+  @ApiOkResponse({
+    description: 'The current weather',
+    type: WeatherVM,
+  })
+  @ApiBadRequestResponse({
+    description: 'Invalid request object',
+    type: BadRequestError,
+  })
+  async saveCurrentWeather(@Query('city') city: string) {
+    const weather = await this.weatherSevice.saveCurrentWeather(city);
+
+    return new SuccessResponseDTO({
+      message: 'Weather saved',
+      metadata: WeatherVM.toViewModel(weather),
     });
   }
 

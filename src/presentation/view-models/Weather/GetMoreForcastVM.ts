@@ -7,16 +7,18 @@ export class GetMoreForcastVM {
   @Type(() => Number)
   @IsNumber()
   @ApiProperty({
-    description: 'The count of the Weather',
-    example: 5,
+    name: 'count',
+    type: Number,
+    required: true,
   })
   count: number;
 
   @IsString()
   @IsNotEmpty()
   @ApiProperty({
-    description: 'The name of the City',
-    example: 'London',
+    name: 'city',
+    type: String,
+    required: true,
   })
   city: string;
 

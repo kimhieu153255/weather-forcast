@@ -1,6 +1,15 @@
-import { Controller, Get, Post, Query, UseInterceptors } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  Query,
+  Redirect,
+  UseInterceptors,
+} from '@nestjs/common';
 import {
   ApiBadRequestResponse,
+  ApiBody,
   ApiOkResponse,
   ApiOperation,
   ApiQuery,
@@ -12,6 +21,9 @@ import { WeatherVM } from '../view-models/Weather/WeatherVM';
 import { SuccessResponseDTO } from 'src/application/dtos/SuccessResponseDTO';
 import { WeatherReceiverUseCases } from 'src/application/use-cases/WeatherReceiverUseCase';
 import { Cron, CronExpression } from '@nestjs/schedule';
+import { RegisterForcastVM } from '../view-models/Weather/RegiterForcastVM';
+import { ConfigService } from '@nestjs/config';
+const configService = new ConfigService();
 
 @ApiTags('Receiver')
 @Controller('receiver')
@@ -23,8 +35,7 @@ export class WeatherReceiverController {
 
   @Post('receive-weather')
   @ApiOperation({ summary: 'Receive weather data' })
-  @ApiQuery({ name: 'email', type: String, required: true })
-  @ApiQuery({ name: 'city', type: String, required: true })
+  @ApiBody({ type: RegisterForcastVM })
   @ApiOkResponse({
     description: 'The weather data',
     type: WeatherVM,
@@ -33,14 +44,10 @@ export class WeatherReceiverController {
     description: 'Invalid request object',
     type: BadRequestError,
   })
-  async receiveWeather(
-    @Query('email') email: string,
-    @Query('city') city: string,
-  ) {
-    const token = await this.weatherReceiverSevice.registerReceiveWeather({
-      email,
-      city,
-    });
+  async receiveWeather(@Body() registerReceiveWeather: RegisterForcastVM) {
+    const token = await this.weatherReceiverSevice.registerReceiveWeather(
+      RegisterForcastVM.fromViewModel(registerReceiveWeather),
+    );
 
     return new SuccessResponseDTO({
       message: 'Weather data received',
@@ -59,6 +66,7 @@ export class WeatherReceiverController {
     description: 'Invalid request object',
     type: BadRequestError,
   })
+  @Redirect(`${configService.get<string>('URL_FE')}confirm/success`, 200)
   async confirmWeather(@Query('token') token: string) {
     await this.weatherReceiverSevice.confirmReceiver(token);
 

@@ -33,8 +33,8 @@ export const WeatherReceiverEntity = new EntitySchema<WeatherReceiver>({
   indices: [
     {
       name: 'INDEX_WEATHER_EMAIL',
-      unique: false,
-      columns: ['email'],
+      unique: true,
+      columns: ['email', 'city'],
     },
   ],
 

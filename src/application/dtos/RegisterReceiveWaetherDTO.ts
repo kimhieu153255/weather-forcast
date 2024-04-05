@@ -1,4 +1,4 @@
-export class registerReceiveWeatherDTO {
+export class RegisterReceiveWeatherDTO {
   email: string;
   city: string;
   constructor(email: string, city: string) {

@@ -59,19 +59,14 @@ export class WeatherUseCases {
       .then((res) => res.data);
     if (!res.location) throw new EntityNotFoundException('City not found');
 
-    const result = await this.weatherRepository.save(
-      new Weather(
-        res.location.name,
-        res.current.temp_c,
-        res.current.wind_kph,
-        res.current.humidity,
-        new Date(),
-        res.current.condition.icon,
-      ),
+    return new Weather(
+      res.location.name,
+      res.current.temp_c,
+      res.current.wind_kph,
+      res.current.humidity,
+      res.location.localtime,
+      res.current.condition.icon,
     );
-    if (!result) throw new InternalServerErrorException('Error saving weather');
-
-    return result;
   }
 
   async getMoreWeather(
@@ -97,5 +92,17 @@ export class WeatherUseCases {
           weather.day.condition.icon,
         ),
     );
+  }
+
+  async saveCurrentWeather(city: string): Promise<Weather> {
+    this.logger.log(`Saving current weather for city: ${city}`);
+
+    const currentWeather = await this.getWeatherByCity(city);
+    if (!currentWeather) throw new EntityNotFoundException('City not found');
+
+    const result = await this.weatherRepository.save(currentWeather);
+    if (!result) throw new InternalServerErrorException('Error saving weather');
+
+    return result;
   }
 }
