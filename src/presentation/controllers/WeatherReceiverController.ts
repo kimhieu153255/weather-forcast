@@ -68,6 +68,7 @@ export class WeatherReceiverController {
   })
   @Redirect(`${configService.get<string>('URL_FE')}confirm/success`, 200)
   async confirmWeather(@Query('token') token: string) {
+    console.log(configService.get<string>('URL_FE'));
     await this.weatherReceiverSevice.confirmReceiver(token);
 
     return new SuccessResponseDTO({
